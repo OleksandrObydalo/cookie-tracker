@@ -10,7 +10,7 @@
             margin: 0 auto;
             padding: 20px;
             background-color: #f5f5f5;
-            padding-bottom: 80px; /* Add padding to make space for the fixed banner */
+            padding-bottom: 80px;
         }
         h1 {
             color: #333;
@@ -24,13 +24,6 @@
         }
         .input-group {
             margin-bottom: 20px;
-        }
-        input[type="text"] {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 16px;
         }
         button {
             background-color: #4CAF50;
@@ -56,7 +49,6 @@
             background-color: #f9f9f9;
             border-radius: 4px;
         }
-        /* Cookie Banner Styles */
         .cookie-banner {
             position: fixed;
             bottom: 0;
@@ -69,13 +61,14 @@
             font-size: 14px;
             box-shadow: 0 -2px 5px rgba(0,0,0,0.2);
             display: flex;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
-            gap: 15px;
-            z-index: 1000; /* Ensure it's on top */
+            z-index: 1000;
         }
         .cookie-banner p {
             margin: 0;
+            flex: 1;
+            padding-right: 10px;
         }
         .cookie-banner button {
             background-color: #fff;
@@ -85,7 +78,7 @@
             border-radius: 4px;
             cursor: pointer;
             font-size: 14px;
-            margin-top: 0; /* Override button margin */
+            margin-top: 0;
         }
         .cookie-banner button:hover {
             background-color: #eee;
@@ -96,113 +89,57 @@
     <div class="container">
         <h1>Website Cookie Tracker</h1>
         <div class="input-group">
-            <input type="text" id="websiteUrl" placeholder="Enter website URL (e.g., https://example.com)">
-            <button onclick="trackCookies()">Track Cookies</button>
+            <button onclick="trackOwnCookies()">Show This Site's Cookies</button>
         </div>
         <div class="results" id="resultsContainer">
             <h3>Cookies will appear here</h3>
         </div>
     </div>
 
-    <!-- Simple Cookie Banner -->
     <div class="cookie-banner" id="cookieBanner">
-        <p>This site uses cookies (though primarily for basic functionality and demonstration purposes related to tracking cookies). By using this site, you agree to our use of cookies.</p>
-        <button onclick="dismissCookieBanner()">Got it!</button>
+        <p>This site uses cookies including <strong>_ga</strong>, which is set by Google Analytics to collect visitor statistics and track site usage. By continuing to use this site, you consent to our cookie usage.</p>
+        <button onclick="acceptCookies()">Got it!</button>
     </div>
 
     <script>
-        function trackCookies() {
-            const url = document.getElementById('websiteUrl').value.trim();
-            const resultsContainer = document.getElementById('resultsContainer');
-            
-            if (!url) {
-                resultsContainer.innerHTML = '<p>Please enter a valid URL</p>';
-                return;
+        function trackOwnCookies() {
+            const cookies = document.cookie;
+            const container = document.getElementById('resultsContainer');
+
+            if (cookies) {
+                const cookieList = cookies.split(';').map(c => {
+                    const [name, value] = c.trim().split('=');
+                    return `<div class="cookie-item"><strong>${name}</strong>: ${value}</div>`;
+                }).join('');
+                container.innerHTML = `<h3>Cookies for this site:</h3>${cookieList}`;
+            } else {
+                container.innerHTML = `<p>No cookies found for this site.</p>`;
             }
-
-            // Clear previous results
-            resultsContainer.innerHTML = '<p>Loading cookies...</p>';
-
-            // Use a hidden iframe to load the website
-            const iframe = document.createElement('iframe');
-            iframe.style.display = 'none';
-            iframe.src = url;
-            
-            iframe.onload = function() {
-                try {
-                    // Attempt to access cookies (note: this will fail on cross-origin sites due to security)
-                    const cookies = document.cookie || 'No cookies accessible (due to security restrictions)';
-                    
-                    if (cookies === 'No cookies accessible (due to security restrictions)') {
-                        resultsContainer.innerHTML = `
-                            <p>Could not directly access cookies for ${url} due to browser security restrictions.</p>
-                            <p>This method is limited to pages on the same origin.</p>
-                            <p>To see cookies set by external websites like ${url}, you can check your browser's developer tools:</p>
-                            <ol>
-                                <li>Права кнопка миші на сторінці -> "Перевірити" (Inspect)</li>
-                                <li>Перейдіть на вкладку "Application" (Застосунок)</li>
-                                <li>У лівому бічному меню знайдіть розділ "Cookies" (Куки)</li>
-                                <li>Ви можете побачити такі куки, як <strong>_ga</strong> (встановлений Google Analytics для відстеження відвідувачів, сеансів та кампаній) та інші.</li>
-                            </ol>
-                            <p>The <strong>_ga</strong> cookie, set by Google Analytics, calculates visitor, session and campaign data and also keeps track of site usage for the site's analytical report. The cookie stores information anonymously and assigns a randomly generated number to recognize unique visitors.</p>
-                        `;
-                    } else {
-                        if (cookies) {
-                            const cookieList = cookies.split(';').map(cookie => {
-                                const [name, value] = cookie.trim().split('=');
-                                return `<div class="cookie-item"><strong>${name}</strong>: ${value}</div>`;
-                            }).join('');
-                            
-                            resultsContainer.innerHTML = `
-                                <h3>Cookies found on ${url}</h3>
-                                ${cookieList}
-                                <p>Total cookies: ${cookies.split(';').length}</p>
-                            `;
-                        } else {
-                            resultsContainer.innerHTML = `<p>No cookies found on ${url}</p>`;
-                        }
-                    }
-                } catch (e) {
-                    resultsContainer.innerHTML = `
-                        <p>Error accessing cookies for ${url}: ${e.message}</p>
-                        <p>This is likely due to browser security restrictions preventing cross-site cookie access.</p>
-                         <p>To see cookies set by external websites like ${url}, you can check your browser's developer tools:</p>
-                            <ol>
-                                <li>Права кнопка миші на сторінці -> "Перевірити" (Inspect)</li>
-                                <li>Перейдіть на вкладку "Application" (Застосунок)</li>
-                                <li>У лівому бічному меню знайдіть розділ "Cookies" (Куки)</li>
-                                <li>Ви можете побачити такі куки, як <strong>_ga</strong> (встановлений Google Analytics для відстеження відвідувачів, сеансів та кампаній) та інші.</li>
-                            </ol>
-                            <p>The <strong>_ga</strong> cookie, set by Google Analytics, calculates visitor, session and campaign data and also keeps track of site usage for the site's analytical report. The cookie stores information anonymously and assigns a randomly generated number to recognize unique visitors.</p>
-                    `;
-                }
-                
-                // Remove the iframe
-                document.body.removeChild(iframe);
-            };
-            
-            iframe.onerror = function() {
-                resultsContainer.innerHTML = `<p>Failed to load ${url}. Please check the URL and try again.</p>`;
-                document.body.removeChild(iframe);
-            };
-            
-            document.body.appendChild(iframe);
         }
 
-        // Cookie banner functionality
-        const cookieBanner = document.getElementById('cookieBanner');
-        const cookieAccepted = localStorage.getItem('cookieAccepted');
-
-        if (cookieAccepted) {
-            cookieBanner.style.display = 'none';
-        } else {
-            cookieBanner.style.display = 'flex'; // Use flex for centering content
+        function setGACookie() {
+            const gaId = 'GA1.2.' + Math.floor(Math.random() * 1000000000) + '.' + Math.floor(Date.now() / 1000);
+            const expireDays = 730;
+            const d = new Date();
+            d.setTime(d.getTime() + (expireDays * 24 * 60 * 60 * 1000));
+            const expires = "expires=" + d.toUTCString();
+            document.cookie = "_ga=" + gaId + "; " + expires + "; path=/";
         }
 
-        function dismissCookieBanner() {
+        function acceptCookies() {
             localStorage.setItem('cookieAccepted', 'true');
-            cookieBanner.style.display = 'none';
+            document.getElementById('cookieBanner').style.display = 'none';
+            setGACookie();
         }
+
+        window.onload = function() {
+            if (localStorage.getItem('cookieAccepted')) {
+                document.getElementById('cookieBanner').style.display = 'none';
+                setGACookie();
+            } else {
+                document.getElementById('cookieBanner').style.display = 'flex';
+            }
+        };
     </script>
 </body>
 </html>
