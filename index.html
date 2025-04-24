@@ -3,6 +3,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cookie Tracker</title>
+    <meta name="description" content="Demo for cookie scanning tools">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -61,15 +62,13 @@
             font-size: 14px;
             box-shadow: 0 -2px 5px rgba(0,0,0,0.2);
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
+            gap: 15px;
             z-index: 1000;
-            gap: 10px;
         }
         .cookie-banner p {
             margin: 0;
-            flex: 1;
-            padding-right: 10px;
         }
         .cookie-banner button {
             background-color: #fff;
@@ -98,7 +97,7 @@
     </div>
 
     <div class="cookie-banner" id="cookieBanner">
-        <p>This site uses cookies including <strong>_ga</strong>, which is set by Google Analytics to collect visitor statistics and track site usage. By continuing to use this site, you consent to our cookie usage.</p>
+        <p>This site uses cookies including <strong>_ga</strong> and <strong>demo_cookie</strong> for tracking and demonstration purposes. You may accept or decline their usage.</p>
         <button onclick="acceptCookies()">Accept</button>
         <button onclick="declineCookies()">Decline</button>
     </div>
@@ -128,15 +127,26 @@
             document.cookie = "_ga=" + gaId + "; " + expires + "; path=/";
         }
 
+        function setDemoCookie() {
+            const expires = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toUTCString();
+            document.cookie = "demo_cookie=accepted; expires=" + expires + "; path=/";
+        }
+
+        function removeDemoCookie() {
+            document.cookie = "demo_cookie=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+        }
+
         function acceptCookies() {
             localStorage.setItem('cookieAccepted', 'true');
             document.getElementById('cookieBanner').style.display = 'none';
             setGACookie();
+            setDemoCookie();
         }
 
         function declineCookies() {
             localStorage.setItem('cookieAccepted', 'false');
             document.cookie = "_ga=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            removeDemoCookie();
             document.getElementById('cookieBanner').style.display = 'none';
         }
 
@@ -145,9 +155,11 @@
             if (cookieAccepted === 'true') {
                 document.getElementById('cookieBanner').style.display = 'none';
                 setGACookie();
+                setDemoCookie();
             } else if (cookieAccepted === 'false') {
                 document.getElementById('cookieBanner').style.display = 'none';
                 document.cookie = "_ga=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                removeDemoCookie();
             } else {
                 document.getElementById('cookieBanner').style.display = 'flex';
             }
