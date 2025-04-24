@@ -64,6 +64,7 @@
             justify-content: space-between;
             align-items: center;
             z-index: 1000;
+            gap: 10px;
         }
         .cookie-banner p {
             margin: 0;
@@ -98,7 +99,8 @@
 
     <div class="cookie-banner" id="cookieBanner">
         <p>This site uses cookies including <strong>_ga</strong>, which is set by Google Analytics to collect visitor statistics and track site usage. By continuing to use this site, you consent to our cookie usage.</p>
-        <button onclick="acceptCookies()">Got it!</button>
+        <button onclick="acceptCookies()">Accept</button>
+        <button onclick="declineCookies()">Decline</button>
     </div>
 
     <script>
@@ -132,10 +134,20 @@
             setGACookie();
         }
 
+        function declineCookies() {
+            localStorage.setItem('cookieAccepted', 'false');
+            document.cookie = "_ga=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            document.getElementById('cookieBanner').style.display = 'none';
+        }
+
         window.onload = function() {
-            if (localStorage.getItem('cookieAccepted')) {
+            const cookieAccepted = localStorage.getItem('cookieAccepted');
+            if (cookieAccepted === 'true') {
                 document.getElementById('cookieBanner').style.display = 'none';
                 setGACookie();
+            } else if (cookieAccepted === 'false') {
+                document.getElementById('cookieBanner').style.display = 'none';
+                document.cookie = "_ga=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
             } else {
                 document.getElementById('cookieBanner').style.display = 'flex';
             }
